@@ -13,7 +13,7 @@ BSD-style license that can be found in the LICENSE file.
   <template>
     <div class="todo-item {{_editingClass}} {{_completedClass}}">
       <input class="toggle" type="checkbox" bind-checked="todo.done">
-      <x-editable-label id="label" bind-value="todo.task"></x-editable-label>
+      <x-editable-label id="label" bind-value="todo.title"></x-editable-label>
       <button class="destroy" on-click="app.removeTodo(todo)"></button>
     </div>
   </template>
@@ -21,6 +21,7 @@ BSD-style license that can be found in the LICENSE file.
   import 'package:web_ui/web_ui.dart';
   import 'model.dart';
 
+  @observable
   class TodoRow extends WebComponent {
     Todo todo;
 

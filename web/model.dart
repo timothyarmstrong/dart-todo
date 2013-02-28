@@ -4,21 +4,36 @@
 
 library model;
 
+import 'dart:html';
+
+import 'package:web_ui/observe.dart';
+import 'package:web_ui/observe/html.dart';
+
+@observable
 class ViewModel {
   bool isVisible(Todo todo) => todo != null &&
       ((showIncomplete && !todo.done) || (showDone && todo.done));
 
-  bool showIncomplete = true;
+  bool get showIncomplete => locationHash != '#/completed';
 
-  bool showDone = true;
+  bool get showDone => locationHash != '#/active';
 }
 
 final ViewModel viewModel = new ViewModel();
 
 // The real model:
 
+@observable
 class AppModel {
-  List<Todo> todos = <Todo>[];
+  ObservableList<Todo> todos = new ObservableList<Todo>();
+
+  void addTodo(Event e) {
+    e.preventDefault(); // don't submit the form
+    var input = query('#new-todo');
+    if (input.value == '') return;
+    todos.add(new Todo(input.value));
+    input.value = '';
+  }
 
   // TODO(jmesserly): remove this once List has a remove method.
   void removeTodo(Todo todo) {
@@ -41,17 +56,26 @@ class AppModel {
   int get remaining => todos.length - doneCount;
 
   void clearDone() {
-    todos = todos.where((t) => !t.done).toList();
+    // TODO(jmesserly): should methods on ObservableList return Observables?
+    todos = toObservable(todos.where((t) => !t.done));
+  }
+
+  bool loaded = false;
+  bool loggedIn = false;
+  void login() {
+    loggedIn = true;
+    loaded = true;
   }
 }
 
 final AppModel app = new AppModel();
 
+@observable
 class Todo {
-  String task;
+  String title;
   bool done = false;
 
-  Todo(this.task);
+  Todo(this.title);
 
   String toString() => "$task ${done ? '(done)' : '(not done)'}";
 }
